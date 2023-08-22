@@ -1,6 +1,6 @@
 name: CI
 
-on: push
+on: [push, workflow_dispatch]
 
 env:
   ANDROID_NDK_VERSION: r25b
@@ -15,17 +15,17 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - package-windows
-      - package-windows-sfx
+      # - package-windows-sfx
       - package-macos
       - package-linux
-      - package-ios
-      - package-watchos
-      - package-tvos
+      # - package-ios
+      # - package-watchos
+      # - package-tvos
       - package-android
-      - package-freebsd
-      - package-qnx
-      - package-apple-universal
-      - assemble-ios-assets
+      # - package-freebsd
+      # - package-qnx
+      # - package-apple-universal
+      # - assemble-ios-assets
     steps:
       - name: Check out repo
         uses: actions/checkout@v3
@@ -84,23 +84,23 @@ jobs:
         with:
           name: frida-node-linux-x86_64
           path: build/release-assets/
-      - name: Download Node.js and Electron prebuilds for Linux/armhf
-        uses: actions/download-artifact@v3
-        with:
-          name: frida-node-linux-armhf
-          path: build/release-assets/
+      # - name: Download Node.js and Electron prebuilds for Linux/armhf
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: frida-node-linux-armhf
+      #     path: build/release-assets/
       - name: Download Node.js and Electron prebuilds for Linux/arm64
         uses: actions/download-artifact@v3
         with:
           name: frida-node-linux-arm64
           path: build/release-assets/
-      - name: Download Node.js and Electron prebuilds for FreeBSD/arm64
-        uses: actions/download-artifact@v3
-        with:
-          name: frida-node-freebsd-arm64
-          path: build/release-assets/
-      - name: Package iOS assets
-        uses: ./.github/actions/package-ios-assets
+      # - name: Download Node.js and Electron prebuilds for FreeBSD/arm64
+      #   uses: actions/download-artifact@v3
+      #   with:
+      #     name: frida-node-freebsd-arm64
+      #     path: build/release-assets/
+      # - name: Package iOS assets
+      #   uses: ./.github/actions/package-ios-assets
       - name: Package Cirrus CI artifacts
         run: releng/package-cirrus-ci-artifacts.sh ${{ github.sha }}
       - name: Rename release assets
@@ -111,81 +111,81 @@ jobs:
           name: "Frida ${{ env.FRIDA_VERSION }}"
           body: "See https://frida.re/news/ for details."
           files: build/release-assets/*
-      - name: Publish Python bindings to PyPI
-        uses: ./.github/actions/publish-python-bindings
-        with:
-          site: production
-          pypi-token: ${{ secrets.PYPI_API_TOKEN }}
-          testpypi-token: ${{ secrets.TEST_PYPI_API_TOKEN }}
-      - name: Publish iOS .debs
-        uses: ./.github/actions/publish-ios-debs
-        with:
-          site: production
-      - name: Publish Node.js bindings to npm
-        run: |
-          cd frida-node
-          npm version $FRIDA_VERSION
-          mkdir prebuilds
-          cp ../build/release-assets/frida-*-node-*-linux-x64.tar.gz prebuilds/
-          npm install
-          npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Publish frida-gadget-ios to npm
-        run: |
-          cd releng/modules/frida-gadget-ios
-          npm version $FRIDA_VERSION
-          npm publish
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Trigger magisk-frida CI
-        run: |
-          curl \
-              -X POST \
-              -H "Accept: application/vnd.github.v3+json" \
-              -H "Authorization: token ${{ secrets.MAGISK_FRIDA_TOKEN }}" \
-              https://api.github.com/repos/ViRb3/magisk-frida/dispatches \
-              -d '{"event_type":"build"}'
+      # - name: Publish Python bindings to PyPI
+      #   uses: ./.github/actions/publish-python-bindings
+      #   with:
+      #     site: production
+      #     pypi-token: ${{ secrets.PYPI_API_TOKEN }}
+      #     testpypi-token: ${{ secrets.TEST_PYPI_API_TOKEN }}
+      # - name: Publish iOS .debs
+      #   uses: ./.github/actions/publish-ios-debs
+      #   with:
+      #     site: production
+      # - name: Publish Node.js bindings to npm
+      #   run: |
+      #     cd frida-node
+      #     npm version $FRIDA_VERSION
+      #     mkdir prebuilds
+      #     cp ../build/release-assets/frida-*-node-*-linux-x64.tar.gz prebuilds/
+      #     npm install
+      #     npm publish
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # - name: Publish frida-gadget-ios to npm
+      #   run: |
+      #     cd releng/modules/frida-gadget-ios
+      #     npm version $FRIDA_VERSION
+      #     npm publish
+      #   env:
+      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      # - name: Trigger magisk-frida CI
+      #   run: |
+      #     curl \
+      #         -X POST \
+      #         -H "Accept: application/vnd.github.v3+json" \
+      #         -H "Authorization: token ${{ secrets.MAGISK_FRIDA_TOKEN }}" \
+      #         https://api.github.com/repos/ViRb3/magisk-frida/dispatches \
+      #         -d '{"event_type":"build"}'
 
-  publish-dev:
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    needs:
-      - frida-windows
-      - frida-macos
-      - frida-linux
-      - frida-freebsd
-      - assemble-ios-assets
-    steps:
-      - name: Check out repo
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          submodules: true
-      - name: Set up environment
-        uses: ./.github/actions/setup-linux-env
-        with:
-          aws-access-key-id: ${{ secrets.S3_ACCESS_KEY }}
-          aws-secret-access-key: ${{ secrets.S3_SECRET_KEY }}
-          cloudflare-email: ${{ secrets.CF_EMAIL }}
-          cloudflare-token: ${{ secrets.CF_TOKEN }}
-      - name: Install tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y reprepro
-          sudo npm install -g cloudflare-cli
-      - name: Package iOS assets
-        uses: ./.github/actions/package-ios-assets
-      - name: Publish Python bindings to TestPyPI
-        uses: ./.github/actions/publish-python-bindings
-        with:
-          site: development
-          pypi-token: ${{ secrets.PYPI_API_TOKEN }}
-          testpypi-token: ${{ secrets.TEST_PYPI_API_TOKEN }}
-      - name: Publish iOS .debs
-        uses: ./.github/actions/publish-ios-debs
-        with:
-          site: development
+  # publish-dev:
+  #   if: github.ref == 'refs/heads/main'
+  #   runs-on: ubuntu-latest
+  #   needs:
+  #     - frida-windows
+  #     - frida-macos
+  #     - frida-linux
+  #     # - frida-freebsd
+  #     # - assemble-ios-assets
+  #   steps:
+  #     - name: Check out repo
+  #       uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
+  #         submodules: true
+  #     - name: Set up environment
+  #       uses: ./.github/actions/setup-linux-env
+  #       with:
+  #         aws-access-key-id: ${{ secrets.S3_ACCESS_KEY }}
+  #         aws-secret-access-key: ${{ secrets.S3_SECRET_KEY }}
+  #         cloudflare-email: ${{ secrets.CF_EMAIL }}
+  #         cloudflare-token: ${{ secrets.CF_TOKEN }}
+  #     - name: Install tools
+  #       run: |
+  #         sudo apt-get update
+  #         sudo apt-get install -y reprepro
+  #         sudo npm install -g cloudflare-cli
+      # - name: Package iOS assets
+      #   uses: ./.github/actions/package-ios-assets
+      # - name: Publish Python bindings to TestPyPI
+      #   uses: ./.github/actions/publish-python-bindings
+      #   with:
+      #     site: development
+      #     pypi-token: ${{ secrets.PYPI_API_TOKEN }}
+      #     testpypi-token: ${{ secrets.TEST_PYPI_API_TOKEN }}
+      # - name: Publish iOS .debs
+      #   uses: ./.github/actions/publish-ios-debs
+      #   with:
+      #     site: development
 
   assemble-ios-assets:
     runs-on: macos-latest
