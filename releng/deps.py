@@ -185,7 +185,7 @@ def roll(bundle: Bundle, host: str, activate: bool):
         if e.code != 404:
             raise CommandError("network error") from e
 
-    s3_url = "s3://dragonfly.s3.cn-northwest-1.amazonaws.com.cn/deps/{version}/{filename}".format(version=version, filename=filename)
+    s3_url = "s3://dragonfly/deps/{version}/{filename}".format(version=version, filename=filename)
 
     # We will most likely need to build, but let's check S3 to be certain.
     r = subprocess.run(["aws", "s3", "ls", s3_url], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding='utf-8')
