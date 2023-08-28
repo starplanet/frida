@@ -18,14 +18,14 @@ jobs:
       # - package-windows-sfx
       - package-macos
       - package-linux
-      # - package-ios
+      - package-ios
       # - package-watchos
       # - package-tvos
       - package-android
       # - package-freebsd
       # - package-qnx
       # - package-apple-universal
-      # - assemble-ios-assets
+      - assemble-ios-assets
     steps:
       - name: Check out repo
         uses: actions/checkout@v3
@@ -155,29 +155,29 @@ jobs:
   #     - frida-windows
   #     - frida-macos
   #     - frida-linux
-  #     # - frida-freebsd
-  #     # - assemble-ios-assets
-  #   steps:
-  #     - name: Check out repo
-  #       uses: actions/checkout@v3
-  #       with:
-  #         fetch-depth: 0
-  #         submodules: true
-  #     - name: Set up environment
-  #       uses: ./.github/actions/setup-linux-env
-  #       with:
-  #         aws-access-key-id: ${{ secrets.S3_ACCESS_KEY }}
-  #         aws-secret-access-key: ${{ secrets.S3_SECRET_KEY }}
-  #         aws-region: ${{ secrets.S3_REGION }}
-  #         cloudflare-email: ${{ secrets.CF_EMAIL }}
-  #         cloudflare-token: ${{ secrets.CF_TOKEN }}
-  #     - name: Install tools
-  #       run: |
-  #         sudo apt-get update
-  #         sudo apt-get install -y reprepro
-  #         sudo npm install -g cloudflare-cli
-      # - name: Package iOS assets
-      #   uses: ./.github/actions/package-ios-assets
+  #     - frida-freebsd
+  #     - assemble-ios-assets
+    # steps:
+    #   - name: Check out repo
+    #     uses: actions/checkout@v3
+    #     with:
+    #       fetch-depth: 0
+    #       submodules: true
+    #   - name: Set up environment
+    #     uses: ./.github/actions/setup-linux-env
+    #     with:
+    #       aws-access-key-id: ${{ secrets.S3_ACCESS_KEY }}
+    #       aws-secret-access-key: ${{ secrets.S3_SECRET_KEY }}
+    #       aws-region: ${{ secrets.S3_REGION }}
+    #       cloudflare-email: ${{ secrets.CF_EMAIL }}
+    #       cloudflare-token: ${{ secrets.CF_TOKEN }}
+    #   - name: Install tools
+    #     run: |
+    #       sudo apt-get update
+    #       sudo apt-get install -y reprepro
+    #       sudo npm install -g cloudflare-cli
+    #   - name: Package iOS assets
+    #     uses: ./.github/actions/package-ios-assets
       # - name: Publish Python bindings to TestPyPI
       #   uses: ./.github/actions/publish-python-bindings
       #   with:
@@ -538,7 +538,7 @@ jobs:
           name: frida-qml-windows-${{ matrix.arch }}
 
   package-windows-sfx:
-    if: startsWith(github.ref, 'refs/tags/')
+    if: 0 == 1 && startsWith(github.ref, 'refs/tags/')
     needs: frida-windows
     strategy:
       matrix:
@@ -610,7 +610,8 @@ jobs:
     needs: frida-linux
     strategy:
       matrix:
-        arch: [x86, x86_64, x86_64-musl, armhf, arm64, arm64-musl, mips, mipsel, mips64, mips64el]
+        arch: [x86, x86_64, arm64]
+        # arch: [x86, x86_64, x86_64-musl, armhf, arm64, arm64-musl, mips, mipsel, mips64, mips64el]
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
@@ -1639,6 +1640,7 @@ jobs:
 
   frida-freebsd:
     runs-on: [freebsd, arm64]
+    if: 0 == 1
     steps:
       - name: Check out repo
         uses: actions/checkout@v3
@@ -1737,6 +1739,7 @@ jobs:
 
   frida-qnx:
     runs-on: ubuntu-latest
+    if: 0 == 1
     needs: sdk-linux
     container: ghcr.io/frida/qnx-tools:latest
     steps:
@@ -1936,6 +1939,7 @@ jobs:
         arch: [arm64, arm64-simulator]
       fail-fast: false
     runs-on: macos-12
+    if: 0 == 1
     steps:
       - name: Check out repo
         uses: actions/checkout@v3
@@ -1961,6 +1965,7 @@ jobs:
         arch: [arm64, arm64-simulator]
       fail-fast: false
     runs-on: macos-12
+    if: 0 == 1
     steps:
       - name: Check out repo
         uses: actions/checkout@v3
@@ -1982,7 +1987,8 @@ jobs:
   toolchain-linux:
     strategy:
       matrix:
-        arch: [x86, x86_64, x86_64-musl, armhf, arm64, arm64-musl]
+        arch: [x86, x86_64, arm64]
+        # arch: [x86, x86_64, x86_64-musl, armhf, arm64, arm64-musl]
       fail-fast: false
     runs-on: ubuntu-latest
     container: ghcr.io/frida/x-tools-linux-${{ matrix.arch }}:latest
@@ -2004,7 +2010,8 @@ jobs:
     needs: toolchain-linux
     strategy:
       matrix:
-        arch: [x86, x86_64, x86_64-musl, armhf, arm64, arm64-musl, mips, mipsel, mips64, mips64el]
+        arch: [x86, x86_64, arm64]
+        # arch: [x86, x86_64, x86_64-musl, armhf, arm64, arm64-musl, mips, mipsel, mips64, mips64el]
       fail-fast: false
     runs-on: ubuntu-latest
     container: ghcr.io/frida/x-tools-linux-${{ matrix.arch }}:latest
