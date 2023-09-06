@@ -218,7 +218,7 @@ def roll(bundle: Bundle, host: str, activate: bool):
                        ],
                        check=True)
 
-    subprocess.run(["aws", "s3", "cp", artifact, s3_url], check=True)
+    subprocess.run(["aws", "s3", "cp", artifact, s3_url, "--acl", "public-read"], check=True)
 
     # Use the shell for Windows compatibility, where npm generates a .bat script.
     # subprocess.run("cfcli purge " + public_url, shell=True, check=True)

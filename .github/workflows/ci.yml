@@ -12,7 +12,7 @@ env:
 jobs:
   publish-prod:
     if: startsWith(github.ref, 'refs/tags/')
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, ubuntu]
     needs:
       - package-windows
       # - package-windows-sfx
@@ -44,7 +44,7 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: 'https://npm.pkg.github.com/'
       - name: Install tools
         run: |
           sudo apt-get update
@@ -112,33 +112,36 @@ jobs:
           name: "Frida ${{ env.FRIDA_VERSION }}"
           body: "See https://frida.re/news/ for details."
           files: build/release-assets/*
-      # - name: Publish Python bindings to PyPI
-      #   uses: ./.github/actions/publish-python-bindings
-      #   with:
-      #     site: production
-      #     pypi-token: ${{ secrets.PYPI_API_TOKEN }}
-      #     testpypi-token: ${{ secrets.TEST_PYPI_API_TOKEN }}
-      # - name: Publish iOS .debs
-      #   uses: ./.github/actions/publish-ios-debs
-      #   with:
-      #     site: production
-      # - name: Publish Node.js bindings to npm
-      #   run: |
-      #     cd frida-node
-      #     npm version $FRIDA_VERSION
-      #     mkdir prebuilds
-      #     cp ../build/release-assets/frida-*-node-*-linux-x64.tar.gz prebuilds/
-      #     npm install
-      #     npm publish
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      # - name: Publish frida-gadget-ios to npm
-      #   run: |
-      #     cd releng/modules/frida-gadget-ios
-      #     npm version $FRIDA_VERSION
-      #     npm publish
-      #   env:
-      #     NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - name: Publish Python bindings to PyPI
+        uses: ./.github/actions/publish-python-bindings
+        with:
+          site: production
+          pypi-token: ${{ secrets.PYPI_API_TOKEN }}
+          testpypi-token: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          upload-user: ${{ secrets.PYPI_API_USER }}
+          pypi-url: ${{ secrets.PYPI_API_URL }}
+      - name: Publish iOS .debs
+        uses: ./.github/actions/publish-ios-debs
+        with:
+          site: production
+      - name: Publish Node.js bindings to npm
+        run: |
+          cd frida-node
+          npm version $FRIDA_VERSION
+          mkdir prebuilds
+          cp ../build/release-assets/frida-*-node-*-linux-x64.tar.gz prebuilds/
+          echo "@${{ env.GITHUB_REPOSITORY_OWNER }}:registry=https://npm.pkg.github.com" > ./.npmrc
+          npm install
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Publish frida-gadget-ios to npm
+        run: |
+          cd releng/modules/frida-gadget-ios
+          npm version $FRIDA_VERSION
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       # - name: Trigger magisk-frida CI
       #   run: |
       #     curl \
