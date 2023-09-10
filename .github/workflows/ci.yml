@@ -128,8 +128,8 @@ jobs:
       #   with:
       #     name: frida-node-freebsd-arm64
       #     path: build/release-assets/
-      # - name: Package iOS assets
-      #   uses: ./.github/actions/package-ios-assets
+      - name: Package iOS assets
+        uses: ./.github/actions/package-ios-assets
       # - name: Package Cirrus CI artifacts
       #   run: releng/package-cirrus-ci-artifacts.sh ${{ github.sha }}
       - name: Rename release assets
