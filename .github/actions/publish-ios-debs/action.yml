@@ -67,13 +67,13 @@ runs:
             echo "Invalid repo specified" > /dev/stderr
             exit 1
         esac
-        aws s3 sync --delete pool/ s3://dragonfly.s3.cn-northwest-1.amazonaws.com.cn${prefix}/pool/
+        aws s3 sync --delete pool/ s3://dragonfly${prefix}/pool/
         for file in Release Packages Packages.gz; do
-          aws s3 cp $file s3://dragonfly.s3.cn-northwest-1.amazonaws.com.cn${prefix}/ --acl public-read
+          aws s3 cp $file s3://dragonfly${prefix}/ios --acl public-read
         done
-        for file in Release Packages Packages.gz; do
-          aws s3 cp $file s3://dragonfly.s3.cn-northwest-1.amazonaws.com.cn${prefix}/./ --acl public-read
-        done
+        # for file in Release Packages Packages.gz; do
+        #   aws s3 cp $file s3://dragonfly${prefix}/./ --acl public-read
+        # done
         # urls_to_invalidate=()
         # for file in Release Packages Packages.gz ./Release ./Packages ./Packages.gz; do
         #   urls_to_invalidate+=("https://dragonfly.s3.cn-northwest-1.amazonaws.com.cn${prefix}/${file}")
