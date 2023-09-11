@@ -150,7 +150,7 @@ jobs:
           npm version $FRIDA_VERSION
           mkdir prebuilds
           cp ../build/release-assets/frida-*-node-*-linux-x64.tar.gz prebuilds/
-          echo "@${{ env.GITHUB_REPOSITORY_OWNER }}:registry=https://npm.pkg.github.com" > ./.npmrc
+          echo "@${{ github.repository_owner }}:registry=https://npm.pkg.github.com" > ./.npmrc
           npm install
           npm publish
         env:
