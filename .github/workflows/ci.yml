@@ -148,9 +148,8 @@ jobs:
         run: |
           cd frida-node
           npm version $FRIDA_VERSION
-          mkdir prebuilds
-          cp ../build/release-assets/frida-*-node-*-linux-x64.tar.gz prebuilds/
-          echo "@${{ github.repository_owner }}:registry=https://npm.pkg.github.com" > ./.npmrc
+          mkdir -p prebuilds/@${{ github.repository_owner }}
+          cp ../build/release-assets/frida-*-node-*-linux-x64.tar.gz prebuilds/@${{ github.repository_owner }}/
           npm install
           npm publish
         env:
@@ -993,7 +992,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: frida-node-windows-${{ matrix.arch }}
-          path: frida-node/prebuilds/*
+          path: frida-node/prebuilds/@${{ github.repository_owner }}/*
       - name: Build .NET bindings
         run: devenv frida.sln /Build $Env:FRIDA_SLN_CONFIG /Project frida-clr
       - name: Upload .NET bindings
@@ -1166,7 +1165,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: frida-node-macos-${{ matrix.arch }}
-          path: frida-node/prebuilds/*
+          path: frida-node/prebuilds/@${{ github.repository_owner }}/*
       - name: Build QML bindings
         if: matrix.arch == 'x86_64'
         run: |
@@ -1366,7 +1365,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: frida-node-linux-${{ matrix.arch }}
-          path: frida-node/prebuilds/*
+          path: frida-node/prebuilds/@${{ github.repository_owner }}/*
       - name: Build QML bindings
         if: matrix.arch == 'x86_64'
         run: |
@@ -1766,7 +1765,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: frida-node-freebsd-arm64
-          path: frida-node/prebuilds/*
+          path: frida-node/prebuilds/@${{ github.repository_owner }}/*
 
   frida-qnx:
     runs-on: ubuntu-latest
